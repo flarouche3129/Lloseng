@@ -90,5 +90,20 @@ public class ChatClient extends AbstractClient
     catch(IOException e) {}
     System.exit(0);
   }
+
+  public void connectionClosed(){//Added for E5a) : will print out a message when the server closes, and will close the connection with the server.
+    try{
+      if(!isConnected()){
+        closeConnection();
+      }
+    }catch(IOException e){
+      connectionException(e);
+    }
+  }
+
+  protected void connectionException (Exception ex){//added for E5a) : will respond to a shutdown by printing a message and closing.
+    System.out.println("The server is now closed.");
+    System.exit(0);
+  }
 }
 //End of ChatClient class

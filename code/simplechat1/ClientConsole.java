@@ -107,6 +107,13 @@ public class ClientConsole implements ChatIF
     String host = "";
     int port = 0;  //The port number
 
+
+    try{//Added for E5b) : should let the user add a port as an argument.
+      port = Integer.parseInt(args[1]);//TODO need to modify this when you'll need more args
+    }
+    catch (ArrayIndexOutOfBoundsException e){
+      port = DEFAULT_PORT;
+    }
     try
     {
       host = args[0];
@@ -115,7 +122,7 @@ public class ClientConsole implements ChatIF
     {
       host = "localhost";
     }
-    ClientConsole chat= new ClientConsole(host, DEFAULT_PORT);
+    ClientConsole chat= new ClientConsole(host, port);
     chat.accept();  //Wait for console data
   }
 }
