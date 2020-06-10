@@ -87,8 +87,69 @@ public class EchoServer extends AbstractServer
     catch (IOException ex)
     {}
   }
+
+  public void handleMessageFromServerConsole(String message) {//Created for E6c). The user can now type commands in the server.
+    if (message.startsWith("#")) {
+      String[] splittedMessage = message.split(" ");
+      String command = splittedMessage[0];
+      switch (command) {
+
+        case ("#quit"):
+          try {
+            System.out.println("Quitting.");
+            this.close();
+          } catch (IOException e) {
+            System.exit(1);
+          }
+          System.exit(0);
+          break;
+
+        case ("#stop"):
+          this.stopListening();
+          this.sendToAllClients("Server is now closed.");
+          break;
+
+        case ("#close"):
+          try {
+            System.out.println("Server disconnected from client");
+            this.close();
+          } catch (IOException e) {
+            System.out.println("Couldn't disconnect from client.");
+          }
+          break;
+
+        case ("#setport"):
+          if (this.isListening() && this.getNumberOfClients() < 1) {
+            super.setPort(Integer.parseInt(splittedMessage[1]));
+            System.out.println("Port is now set to : " + Integer.parseInt(splittedMessage[1]));
+          } else {
+            System.out.println("The server is already running. You cannot set a port yet.");
+          }
+          break;
+
+        case ("#start"):
+          if (!this.isListening()) {
+            try {
+              this.listen();
+            } catch (IOException e) {
+              System.out.println("Error listening to client");
+            }
+          }
+          break;
+
+        case ("#getport"):
+          System.out.println("The current port is : " + this.getPort());
+          break;
+
+        default:
+          System.out.println("This command does not exist : '" + command + "'");
+      }
+    }
+    else{
+      this.sendToAllClients("SERVER MSG> " + message );
+    }
+  }
   //Class methods ***************************************************
-  
   /**
    * This method is responsible for the creation of 
    * the server instance (there is no UI in this phase).

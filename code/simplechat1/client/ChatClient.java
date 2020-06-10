@@ -3,7 +3,6 @@
 // license found at www.lloseng.com 
 
 package client;
-
 import ocsf.client.*;
 import common.*;
 import java.io.*;
@@ -66,15 +65,67 @@ public class ChatClient extends AbstractClient
    */
   public void handleMessageFromClientUI(String message)
   {
-    try
-    {
-      sendToServer(message);
+    if (message.startsWith("#")) {
+      String[] splittedMessage = message.split(" ");
+      String command = splittedMessage[0];
+      switch (command) {
+        case ("#quit"):
+          quit();
+          break;
+
+        case ("#logoff"):
+          try {
+            System.out.println("The connection is now closed.");
+            connectionClosed();
+          } catch (Exception E) {//TODO very generic exception type, IOException doesn't work tho?
+            System.out.println("Sorry, there was an error closing the connection.");
+          }
+          break;
+        case ("#sethost"):
+          if (this.isConnected()) {
+            System.out.println("Already connected to a server! You can't change host right now.");
+          } else {
+            super.setHost(splittedMessage[1]);
+          }
+          break;
+        case ("#setport"):
+          if (this.isConnected()) {
+            System.out.println("Already connected to a server! You can't change port right now.");
+          } else {
+            this.setPort(Integer.parseInt(splittedMessage[1]));
+          }
+          break;
+        case ("#login"):
+          if (this.isConnected()) {
+            System.out.println("You are already logged in. Please log out before trying to log in again.");
+          } else {
+            try {
+              this.openConnection();
+            } catch (IOException e) {
+              System.out.println("Could not establish the connection.");
+            }
+            break;
+          }
+        case ("#gethost"):
+          System.out.println("The current host is : " + this.getHost());
+          break;
+
+        case ("#getport"):
+          System.out.println("The current port is : " + this.getPort());
+          break;
+
+        default :
+          System.out.println("This command does not exist : '" + command + "'" );
+      }
     }
-    catch(IOException e)
-    {
-      clientUI.display
-        ("Could not send message to server.  Terminating client.");
-      quit();
+    else {
+      try {
+        sendToServer(message);
+      } catch (IOException e) {
+        clientUI.display
+                ("Could not send message to server.  Terminating client.");
+        quit();
+      }
     }
   }
   
