@@ -36,9 +36,9 @@ public class ServerConsole implements ChatIF{
 
                 message = fromConsole.readLine();
                 server.handleMessageFromServerConsole(message);
-                if (!message.startsWith("#")){
-                    this.display(message);//maybe u don't need this
-                }
+//                if (!message.startsWith("#")){
+//                    this.display(message);//maybe u don't need this
+//                }
             }
         }
         catch (Exception ex){

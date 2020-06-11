@@ -24,9 +24,11 @@ public class ChatClient extends AbstractClient
    * The interface type variable.  It allows the implementation of 
    * the display method in the client.
    */
-  ChatIF clientUI; 
+  ChatIF clientUI;
 
-  
+  String username;//added the username variable.
+
+
   //Constructors ****************************************************
   
   /**
@@ -37,12 +39,18 @@ public class ChatClient extends AbstractClient
    * @param clientUI The interface type variable.
    */
   
-  public ChatClient(String host, int port, ChatIF clientUI) 
+  public ChatClient(String username, String host, int port, ChatIF clientUI) //Modified for E7a) : added the username proprety. Must be added when trying to login.
     throws IOException 
   {
     super(host, port); //Call the superclass constructor
     this.clientUI = clientUI;
-    openConnection();
+    this.username = username;//now sets up the username.
+    try{
+      openConnection();
+    } catch(IOException e){
+      System.out.println("Couldn't establish connection. Try again.");
+    }
+
   }
 
   
@@ -63,7 +71,7 @@ public class ChatClient extends AbstractClient
    *
    * @param message The message from the UI.    
    */
-  public void handleMessageFromClientUI(String message)
+  public void handleMessageFromClientUI(String message)//Modified for E6a) : added commands for the user.
   {
     if (message.startsWith("#")) {
       String[] splittedMessage = message.split(" ");
@@ -75,9 +83,8 @@ public class ChatClient extends AbstractClient
 
         case ("#logoff"):
           try {
-            System.out.println("The connection is now closed.");
-            connectionClosed();
-          } catch (Exception E) {//TODO very generic exception type, IOException doesn't work tho?
+            closeConnection();
+          } catch (Exception e) {//TODO very generic exception type, IOException doesn't work tho?
             System.out.println("Sorry, there was an error closing the connection.");
           }
           break;
@@ -143,18 +150,20 @@ public class ChatClient extends AbstractClient
   }
 
   public void connectionClosed(){//Added for E5a) : will print out a message when the server closes, and will close the connection with the server.
-    try{
-      if(!isConnected()){
-        closeConnection();
-      }
-    }catch(IOException e){
-      connectionException(e);
-    }
+    clientUI.display("Connection with the server is now closed.");
   }
 
   protected void connectionException (Exception ex){//added for E5a) : will respond to a shutdown by printing a message and closing.
-    System.out.println("The server is now closed.");
-    System.exit(0);
+    clientUI.display("Oops! Something happened when trying to connect to the server...");
+    connectionClosed();
+  }
+
+  protected void connectionEstablished(){//Overrides the method in the superclass and provides an automatic login to the server.
+    try{
+      sendToServer("#login " + username);
+    }catch (IOException e){
+      quit();
+    }
   }
 }
 //End of ChatClient class
